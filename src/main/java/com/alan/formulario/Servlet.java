@@ -13,91 +13,72 @@ import java.util.HashMap;
 import java.util.Map;
 
 //path
-@WebServlet("/registro")
+@WebServlet("/registro") // Mapea el servlet a la URL "/registro"
 public class Servlet extends HttpServlet {
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html");
+    /**
+     * Método que procesa las peticiones POST del formulario
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        //Obtenemos los atributos del formulario
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
-        String email = req.getParameter("email");
-        String pais = req.getParameter("pais");
-        String[] lenguajes = req.getParameterValues("lenguajes");
-        String[] roles = req.getParameterValues("roles");
-
-        String idioma = req.getParameter("idioma");
-        boolean habilitar=req.getParameter("habilitar") != null && req.getParameter("habilitar").equals("on");
-        String secreto = req.getParameter("secreto");
-
+        // Mapa para almacenar mensajes de error
         Map<String, String> errores = new HashMap<>();
-        if (username==null|| username.isBlank()){
-            errores.put("username", "El usuario es obligatorio");
+        // Variable para almacenar el resultado
+        String resultado = null;
+        String primos=null;
 
+        // Obtener parámetros del formulario
+        String numero1Str = request.getParameter("numero1");
+        String numero2Str = request.getParameter("numero2");
+        String operacion = request.getParameter("operacion");
+
+
+        // Validar y convertir los números de String a double
+        double numero1 = 0, numero2 = 0;
+        try {
+            numero1 = Double.parseDouble(numero1Str);
+            numero2 = Double.parseDouble(numero2Str);
+        } catch (NumberFormatException e) {
+            // Si ocurre error en la conversión, agregar mensaje de error
+            errores.put("numeros", "Los números deben ser válidos.");
         }
 
-        if (password==null|| password.isBlank()){
-            errores.put("password", "El password es obligatorio");
-        }
+        // Si no hay errores en los números, realizar la operación
+        if (errores.isEmpty()) {
+            switch (operacion) {
+                case "primos":
+                    for (int primo = 0; numero1 >= 0; numero1++) {
+                        if (numero1 >= 0) {
+                            String.valueOf(numero1++ / 1);
+                        } else {
+                            // Error al dividir por cero
+                            errores.put("Error", "No se puede poner un numero negativo.");
+                        }
+                        if (numero2 > numero1) {
+                            resultado = String.valueOf(numero1++ / 1);
+                        } else {
+                            // Error al dividir por cero
+                            errores.put("Error", "No se puede poner un rango negativo .");
+                        }
 
-        if (email==null|| !email.contains("@")){
-            errores.put("email", "El email es obligatorio y debe tener un formato de correo.");
-        }
-        if (pais==null|| pais.equals("") || pais.equals(" ")){
-            errores.put("pais", "El pais es requerido!");
-        }
-        if (lenguajes==null || lenguajes.length==0){
-            errores.put("lenguajes", "Debe seleccionar al menos una opcion");
-        }
+                        if (numero2 >= 0) {
+                            resultado = String.valueOf(numero1++ / 1);
+                        } else {
+                            // Error al dividir por cero
+                            errores.put("Error", "No se puede poner un numero negativo .");
+                        }
+                        break;
 
-        if (roles==null || roles.length==0){
-            errores.put("roles", "Debe seleccionar al menos un rol");
-        }
-        if (idioma==null){
-            errores.put("idioma", "Debe seleccionar un idioma!.");
-        }
-        if (errores.isEmpty()){
-            try (PrintWriter out=resp.getWriter()){
-                out.println("<!DOCTYPE html>");
-                out.println("<html>");
-                out.println("    <head>");
-                out.println("        <meta charset=\"UTF-8\">");
-                out.println("        <title>Resultado form</title>");
-                out.println("    </head>");
-                out.println("    <body>");
-                out.println("        <h1>Resultado form!</h1>");
-
-                out.println("        <ul>");
-                out.println("            <li>Username: " + username + "</li>");
-                out.println("            <li>Password: " + password + "</li>");
-                out.println("            <li>Email: " + email + "</li>");
-                out.println("            <li>País: " + pais + "</li>");
-                out.println("            <li>Lenguajes: <ul>");
-                Arrays.asList(lenguajes).forEach(lenguaje -> {
-                    out.println("                <li>" + lenguaje + "</li>");
-                });
-                out.println("            </ul></li>");
-
-                out.println("            <li>Roles: <ul>");
-                Arrays.asList(roles).forEach(role -> {
-                    out.println("                <li>" + role + "</li>");
-                });
-                out.println("            </ul></li>");
-                out.println("            <li>Idioma: " + idioma + "</li>");
-                out.println("            <li>Habilitado: " + habilitar + "</li>");
-                out.println("            <li>Secreto: " + secreto + "</li>");
-                out.println("        </ul>");
-                out.println("    </body>");
-                out.println("</html>");
+                    }
             }
-        }else{
-            req.setAttribute("errores", errores);
-            getServletContext().getRequestDispatcher("/index.jsp").forward(req, resp);
         }
+        // Establecer atributos para pasar a la JSP
+        request.setAttribute("errores", errores); // Mapa de errores
+        request.setAttribute("resultado", resultado); // Resultado de la operación
 
 
-
+        // Redirigir a la página JSP (index.jsp) para mostrar el resultado
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 }
